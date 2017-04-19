@@ -12,6 +12,13 @@ using std::vector;
  * Initializes Unscented Kalman filter
  */
 UKF::UKF() {
+
+  // seperate initialization step for first measurement
+  is_initialized_ = false;
+
+  // for calculation of delta_t
+  previous_timestamp_ = 0;
+
   // if this is false, laser measurements will be ignored (except during init)
   use_laser_ = true;
 
@@ -95,6 +102,44 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
   Complete this function! Make sure you switch between lidar and radar
   measurements.
   */
+  /*****************************************************************************
+   *  Initialization
+   ****************************************************************************/
+  if (!is_initialized_) {
+    P_ = MatrixXd::Identity(n_x_, n_x_);
+
+    if (meas_package.sensor_type_ == MeasurementPackage::LASER) {
+      double px = meas_package.raw_measurements_[0];
+      double py = meas_package.raw_measurements_[1];
+      x_ << px, py, 0, 0, 0;
+    } else if (meas_package.sensor_type_ == MeasurementPackage::RADAR) {
+      double rho, phi, rho_dot;
+      rho = meas_package.raw_measurements_[0];
+      phi = meas_package.raw_measurements_[1];
+      rho_dot = meas_package.raw_measurements_[2];
+      x_ << rho *cos(phi), rho * sin(phi), 0, 0, 0;
+    }
+
+    previous_timestamp_ = meas_package.timestamp_;
+    // done initializing, no need to predict or update
+    is_initialized_ = true;
+    return;
+  }
+
+  /*****************************************************************************
+   *  Prediction
+   ****************************************************************************/
+
+  float delta_t = (meas_package.timestamp_ - previous_timestamp_) /
+                  1000000.0; // dt - expressed in seconds
+  previous_timestamp_ = meas_package.timestamp_;
+  Prediction(delta_t);
+
+  if (meas_package.sensor_type_ == MeasurementPackage::LASER) {
+    UpdateLidar(meas_package);
+  } else if (meas_package.sensor_type_ == MeasurementPackage::RADAR) {
+    UpdateRadar(meas_package);
+  }
 }
 
 /**
@@ -121,13 +166,12 @@ void UKF::UpdateLidar(MeasurementPackage meas_package) {
   TODO:
   You'll also need to calculate the lidar NIS.
   */
-
   VectorXd z = meas_package.raw_measurements_;
   VectorXd y = z - H_ * x_;
   MatrixXd S = H_ * P_ * H_.transpose() + R_laser_;
   MatrixXd K = P_ * H_.transpose() * S.inverse();
   x_ += K * y;
-  P_ = (MatrixXd::Identity(4, 4) - K * H_) * P_;
+  P_ = (MatrixXd::Identity(n_x_, n_x_) - K * H_) * P_;
 }
 
 /**
