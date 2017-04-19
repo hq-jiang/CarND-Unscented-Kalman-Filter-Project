@@ -64,6 +64,9 @@ public:
   ///* Augmented state dimension
   int n_aug_;
 
+  ///* Laser measurement dimension
+  int n_z_laser_;
+
   ///* Radar measurement dimension
   int n_z_radar_;
 
@@ -75,6 +78,16 @@ public:
 
   ///* the current NIS for laser
   double NIS_laser_;
+
+  ///* Measurement matrix for laser
+  MatrixXd H_;
+
+  ///* Measurement noise radar
+  MatrixXd R_laser_;
+
+  ///* Measurement noise radar
+  MatrixXd R_radar_;
+
 
   /**
    * Constructor
@@ -116,7 +129,7 @@ public:
   void predictMeasurementRadar(Eigen::MatrixXd *Zsig_pred, VectorXd *z_pred,
                                MatrixXd *S_pred);
   void innovateRadar(VectorXd raw_measurements, MatrixXd Zsig_pred,
-                     VectorXd z_pred, MatrixXd S_pred)
+                     VectorXd z_pred, MatrixXd S_pred);
 };
 
 #endif /* UKF_H */
