@@ -65,7 +65,7 @@ int main(int argc, char* argv[]) {
   /**********************************************
    *  Set Measurements                          *
    **********************************************/
-
+  cout << "[DEBUG]: Entering set measurements" << endl;
   vector<MeasurementPackage> measurement_pack_list;
   vector<GroundTruthPackage> gt_pack_list;
 
@@ -128,10 +128,10 @@ int main(int argc, char* argv[]) {
       gt_package.gt_values_ << x_gt, y_gt, vx_gt, vy_gt;
       gt_pack_list.push_back(gt_package);
   }
-
+  cout << "[DEBUG]: Before initializing ukf" << endl;
   // Create a UKF instance
   UKF ukf;
-
+  cout << "[DEBUG]: After initializing ukf" << endl;
   // used to compute the RMSE later
   vector<VectorXd> estimations;
   vector<VectorXd> ground_truth;
@@ -155,7 +155,7 @@ int main(int argc, char* argv[]) {
   out_file_ << "vy_true" << "\t";
   out_file_ << "NIS" << "\n";
 
-
+  cout << "Before entering processMeasurement" << endl;
   for (size_t k = 0; k < number_of_measurements; ++k) {
     // Call the UKF-based fusion
     ukf.ProcessMeasurement(measurement_pack_list[k]);

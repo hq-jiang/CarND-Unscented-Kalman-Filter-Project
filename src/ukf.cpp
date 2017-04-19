@@ -62,21 +62,24 @@ UKF::UKF() {
   // initial predicted sigma points
   Xsig_pred_ = MatrixXd(n_x_, 2 * n_aug_ + 1);
 
+  cout << "[DEBUG]: Before setting weights" << endl;
   // set weights for compensating lambda
+  weights_ = VectorXd(2 * n_aug_ + 1);
   weights_(0) = lambda_ / (lambda_ + n_aug_);
   for (int i = 1; i < 2 * n_aug_ + 1; i++) {
     weights_(i) = 0.5 / (lambda_ + n_aug_);
   }
+  cout << "[DEBUG]: after initializing weights" << endl;
 
   // set laser measurement matrix
-  MatrixXd H_(n_z_laser_, n_x_);
+  H_ = MatrixXd(n_z_laser_, n_x_);
   H_.fill(0.0);
   H_(0, 0) = 1;
   H_(1, 1) = 1;
 
-  MatrixXd R_laser_(n_z_laser_, n_z_laser_);
+  R_laser_ = MatrixXd(n_z_laser_, n_z_laser_);
   R_laser_ << std_laspx_ *std_laspx_, 0, 0, std_laspy_ *std_laspy_;
-  MatrixXd R_radar_(n_z_radar_, n_z_radar_);
+  R_radar_ = MatrixXd(n_z_radar_, n_z_radar_);
   R_radar_ << std_radr_ *std_radr_, 0, 0, 0, std_radphi_ *std_radphi_, 0, 0, 0,
       std_radrd_ *std_radrd_;
 }
@@ -106,6 +109,7 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
    *  Initialization
    ****************************************************************************/
   if (!is_initialized_) {
+    cout << "Entered initialization" << endl;
     P_ = MatrixXd::Identity(n_x_, n_x_);
 
     if (meas_package.sensor_type_ == MeasurementPackage::LASER) {
@@ -123,6 +127,8 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
     previous_timestamp_ = meas_package.timestamp_;
     // done initializing, no need to predict or update
     is_initialized_ = true;
+
+    cout << "[DEBUG]: Finished initialization" << endl;
     return;
   }
 
@@ -133,12 +139,17 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
   float delta_t = (meas_package.timestamp_ - previous_timestamp_) /
                   1000000.0; // dt - expressed in seconds
   previous_timestamp_ = meas_package.timestamp_;
+  cout << "[DEBUG]: Before prediction step" << endl;
   Prediction(delta_t);
-
+  cout << "[DEBUG]: After prediction step" << endl;
   if (meas_package.sensor_type_ == MeasurementPackage::LASER) {
+    cout << "[DEBUG]: Enter UpdateLidar" << endl;
     UpdateLidar(meas_package);
+    cout << "[DEBUG]: After UpdateLidar" << endl;
   } else if (meas_package.sensor_type_ == MeasurementPackage::RADAR) {
+    cout << "[DEBUG]: Enter UpdateRadar" << endl;
     UpdateRadar(meas_package);
+    cout << "[DEBUG]: After UpdateRadar" << endl;
   }
 }
 
@@ -170,6 +181,7 @@ void UKF::UpdateLidar(MeasurementPackage meas_package) {
   VectorXd y = z - H_ * x_;
   MatrixXd S = H_ * P_ * H_.transpose() + R_laser_;
   MatrixXd K = P_ * H_.transpose() * S.inverse();
+
   x_ += K * y;
   P_ = (MatrixXd::Identity(n_x_, n_x_) - K * H_) * P_;
 }
