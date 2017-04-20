@@ -105,6 +105,12 @@ plt.subplot(2,4,8)
 plt.plot(yaw_rate)
 plt.title('yaw_rate')
 
+
+plt.figure()
+plt.plot(px,py)
+plt.plot(px_true,py_true)
+plt.plot(px_measured, py_measured)
+
 plt.show()
 
 

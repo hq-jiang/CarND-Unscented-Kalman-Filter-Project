@@ -39,10 +39,10 @@ UKF::UKF() {
   lambda_ = 3 - n_aug_;
 
   // Process noise standard deviation longitudinal acceleration in m/s^2
-  std_a_ = 1.25; // Half of the maximum accelaration of a bike.
+  std_a_ = 0.9; // Half of the maximum accelaration of a bike.
 
   // Process noise standard deviation yaw acceleration in rad/s^2
-  std_yawdd_ = 1.;
+  std_yawdd_ = 0.4;
 
   // Laser measurement noise standard deviation position1 in m
   std_laspx_ = 0.15;
@@ -109,8 +109,8 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
   if (!is_initialized_) {
     P_.fill(0.0);
     P_(0, 0) = 1;
-    P_(1, 1) = 2;
-    P_(2, 2) = 2;
+    P_(1, 1) = 1;
+    P_(2, 2) = 1;
     P_(3, 3) = 1;
     P_(4, 4) = 1;
 
