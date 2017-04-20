@@ -61,50 +61,52 @@ print ('Percentage ok for laser: ', p_laser/len(NIS))
 
 plt.figure()
 #x = np.arange(0,len(NIS)-1)
-plt.subplot(2,3,1)
+plt.subplot(2,4,1)
 plt.plot(px, label='pred')
 plt.plot(px_measured, label='measured')
 plt.plot(px_true, label='true')
 plt.title('px')
 plt.legend()
 
-plt.subplot(2,3,2)
+plt.subplot(2,4,2)
 plt.plot(py, label='pred')
 plt.plot(py_measured, label='measured')
 plt.plot(py_true, label='true')
 plt.title('py')
 plt.legend()
 
-plt.subplot(2,3,3)
+plt.subplot(2,4,3)
 plt.plot(v)
 plt.title('v')
 
-plt.subplot(2,3,4)
+plt.subplot(2,4,4)
 plt.plot(vx_pred, label='pred')
 plt.plot(vx_true, label='true')
 plt.title('vx')
 plt.legend()
 
-plt.subplot(2,3,5)
-plt.plot(vy_true, label='pred')
+plt.subplot(2,4,5)
+plt.plot(vy_pred, label='pred')
 plt.plot(vy_true, label='true')
 plt.title('vy')
 plt.legend()
 
-plt.subplot(2,3,6)
+plt.subplot(2,4,6)
 plt.plot(NIS)
 plt.plot(chi_radar)
 plt.title('NIS')
 plt.ylim([0 ,100])
 
+plt.subplot(2,4,7)
+plt.plot(yaw_angle)
+plt.title('yaw_angle')
+
+plt.subplot(2,4,8)
+plt.plot(yaw_rate)
+plt.title('yaw_rate')
+
 plt.show()
 
 
 
-#plt.subplot(2,4,4)
-#plt.plot(yaw_angle)
-#plt.title('yaw_angle')
-#
-#plt.subplot(2,4,5)
-#plt.plot(yaw_rate)
-#plt.title('yaw_rate')
+
