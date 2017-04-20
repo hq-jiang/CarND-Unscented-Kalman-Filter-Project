@@ -129,6 +129,7 @@ int main(int argc, char* argv[]) {
   }
   // Create a UKF instance
   UKF ukf;
+
   // used to compute the RMSE later
   vector<VectorXd> estimations;
   vector<VectorXd> ground_truth;

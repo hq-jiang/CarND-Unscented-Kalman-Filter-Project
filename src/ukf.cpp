@@ -107,12 +107,14 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
    *  Initialization
    ****************************************************************************/
   if (!is_initialized_) {
-    cout << "Entered initialization" << endl;
+    P_.fill(0.0);
     P_(0, 0) = 0.1;
     P_(1, 1) = 0.1;
     P_(2, 2) = 1;
     P_(3, 3) = 1;
     P_(4, 4) = 1;
+
+    x_.fill(0.0);
 
     if (meas_package.sensor_type_ == MeasurementPackage::LASER) {
       double px = meas_package.raw_measurements_[0];
@@ -158,6 +160,7 @@ void UKF::Prediction(double delta_t) {
 
   // create sigma point matrix
   MatrixXd Xsig_aug = MatrixXd(n_aug_, 2 * n_aug_ + 1);
+  Xsig_aug.fill(0.0);
   createSigmaPoints(&Xsig_aug);
   predictSigmaPoints(Xsig_aug, delta_t);
   predictMeanCov();
@@ -194,8 +197,11 @@ void UKF::UpdateRadar(MeasurementPackage meas_package) {
   You'll also need to calculate the radar NIS.
   */
   MatrixXd Zsig_pred(n_z_radar_, 2 * n_aug_ + 1);
+  Zsig_pred.fill(0.0);
   VectorXd z_pred(n_z_radar_);
+  z_pred.fill(0.0);
   MatrixXd S_pred(n_z_radar_, n_z_radar_);
+  S_pred.fill(0.0);
   VectorXd z = meas_package.raw_measurements_;
 
   predictMeasurementRadar(&Zsig_pred, &z_pred, &S_pred);
@@ -212,6 +218,7 @@ void UKF::createSigmaPoints(MatrixXd *Xsig_aug) {
 
   // create augmented state covariance
   MatrixXd P_aug = MatrixXd(7, 7);
+  P_aug.fill(0.0);
 
   // create augmented mean state
   x_aug.head(5) = x_;
@@ -219,7 +226,6 @@ void UKF::createSigmaPoints(MatrixXd *Xsig_aug) {
   x_aug(6) = 0;
 
   // create augmented covariance matrix
-  P_aug.fill(0.0);
   P_aug.topLeftCorner(5, 5) = P_;
   P_aug(5, 5) = std_a_ * std_a_;
   P_aug(6, 6) = std_yawdd_ * std_yawdd_;
@@ -327,6 +333,7 @@ void UKF::predictMeasurementRadar(MatrixXd *Zsig_pred, VectorXd *z_pred,
 
   // calculate measurement covariance matrix S
   MatrixXd Zsig_diff;
+  Zsig_diff.fill(0.0);
 
   Zsig_diff = Zsig_pred->colwise() - *z_pred;
   for (int i = 0; i < 2 * n_aug_ + 1; i++) {
