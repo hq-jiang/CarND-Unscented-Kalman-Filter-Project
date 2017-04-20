@@ -65,7 +65,6 @@ int main(int argc, char* argv[]) {
   /**********************************************
    *  Set Measurements                          *
    **********************************************/
-  cout << "[DEBUG]: Entering set measurements" << endl;
   vector<MeasurementPackage> measurement_pack_list;
   vector<GroundTruthPackage> gt_pack_list;
 
@@ -128,10 +127,8 @@ int main(int argc, char* argv[]) {
       gt_package.gt_values_ << x_gt, y_gt, vx_gt, vy_gt;
       gt_pack_list.push_back(gt_package);
   }
-  cout << "[DEBUG]: Before initializing ukf" << endl;
   // Create a UKF instance
   UKF ukf;
-  cout << "[DEBUG]: After initializing ukf" << endl;
   // used to compute the RMSE later
   vector<VectorXd> estimations;
   vector<VectorXd> ground_truth;
@@ -191,7 +188,7 @@ int main(int argc, char* argv[]) {
     out_file_ << gt_pack_list[k].gt_values_(3) << "\t";
 
     // output the NIS values
-    
+
     if (measurement_pack_list[k].sensor_type_ == MeasurementPackage::LASER) {
       out_file_ << ukf.NIS_laser_ << "\n";
     } else if (measurement_pack_list[k].sensor_type_ == MeasurementPackage::RADAR) {
@@ -211,7 +208,6 @@ int main(int argc, char* argv[]) {
     
     estimations.push_back(ukf_x_cartesian_);
     ground_truth.push_back(gt_pack_list[k].gt_values_);
-
   }
 
   // compute the accuracy (RMSE)
