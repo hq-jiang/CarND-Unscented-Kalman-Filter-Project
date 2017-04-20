@@ -39,10 +39,10 @@ UKF::UKF() {
   lambda_ = 3 - n_aug_;
 
   // Process noise standard deviation longitudinal acceleration in m/s^2
-  std_a_ = 0.5; // Half of the maximum accelaration of a bike.
+  std_a_ = 1.25; // Half of the maximum accelaration of a bike.
 
   // Process noise standard deviation yaw acceleration in rad/s^2
-  std_yawdd_ = 0.05;
+  std_yawdd_ = 1.;
 
   // Laser measurement noise standard deviation position1 in m
   std_laspx_ = 0.15;
@@ -61,7 +61,7 @@ UKF::UKF() {
 
   // initial predicted sigma points
   Xsig_pred_ = MatrixXd(n_x_, 2 * n_aug_ + 1);
-
+  Xsig_pred_.fill(0.0);
   // set weights for compensating lambda
   weights_ = VectorXd(2 * n_aug_ + 1);
   weights_(0) = lambda_ / (lambda_ + n_aug_);
@@ -108,9 +108,9 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
    ****************************************************************************/
   if (!is_initialized_) {
     P_.fill(0.0);
-    P_(0, 0) = 0.1;
-    P_(1, 1) = 0.1;
-    P_(2, 2) = 1;
+    P_(0, 0) = 1;
+    P_(1, 1) = 2;
+    P_(2, 2) = 2;
     P_(3, 3) = 1;
     P_(4, 4) = 1;
 
@@ -183,8 +183,7 @@ void UKF::UpdateLidar(MeasurementPackage meas_package) {
   x_ += K * y;
   P_ = (MatrixXd::Identity(n_x_, n_x_) - K * H_) * P_;
 
-  NIS_laser_ = y.transpose()*S.inverse()*y;
-  cout << "[DEBUG]: NIS_laser " << NIS_laser_ << endl;
+  NIS_laser_ = y.transpose() * S.inverse() * y;
 }
 
 /**
@@ -206,9 +205,8 @@ void UKF::UpdateRadar(MeasurementPackage meas_package) {
 
   predictMeasurementRadar(&Zsig_pred, &z_pred, &S_pred);
   innovateRadar(z, Zsig_pred, z_pred, S_pred);
-  VectorXd y = z -z_pred;
-  NIS_radar_ = y.transpose()*S_pred.inverse()*y;
-  cout << "[DEBUG]: NIS_radar " << NIS_radar_ << endl;
+  VectorXd y = z - z_pred;
+  NIS_radar_ = y.transpose() * S_pred.inverse() * y;
 }
 
 void UKF::createSigmaPoints(MatrixXd *Xsig_aug) {

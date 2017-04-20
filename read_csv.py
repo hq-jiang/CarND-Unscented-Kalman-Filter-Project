@@ -43,6 +43,21 @@ for vel, yaw in zip(v, yaw_angle):
 	vx_pred.append(vel*math.cos(yaw))
 	vy_pred.append(vel*math.sin(yaw))
 
+chi_radar = [7.915] * len(px)
+chi_laser = [5.991] * len(px)
+
+p_radar = 0
+p_laser = 0
+for e in NIS:
+	if (e < 7.915):
+		p_radar += 1.
+	if (e < 5.991):
+		p_laser += 1.
+
+print ('Percentage ok for radar: ', p_radar/len(NIS))
+print ('Percentage ok for laser: ', p_laser/len(NIS))
+
+
 
 plt.figure()
 #x = np.arange(0,len(NIS)-1)
@@ -78,16 +93,13 @@ plt.legend()
 
 plt.subplot(2,3,6)
 plt.plot(NIS)
+plt.plot(chi_radar)
 plt.title('NIS')
-plt.ylim([0 ,10])
-
-plt.figure()
-plt.plot(NIS)
-plt.title('NIS')
-plt.ylim([0 ,10])
-
+plt.ylim([0 ,100])
 
 plt.show()
+
+
 
 #plt.subplot(2,4,4)
 #plt.plot(yaw_angle)
